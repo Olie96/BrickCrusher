@@ -4,23 +4,41 @@ using UnityEngine;
 
 public class PaddleScript : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-		
+    public GameObject ballPrefab;
+    GameObject attachedBall = null;
+    // Use this for initialization
+    void Start () {
+        SpawnBall();
 	}
 
+   public void SpawnBall()
+    {
+        if (ballPrefab == null)
+        {
+            Debug.Log("Ball prefabnot linked in the inspector");
+            return;
+        }
+        Vector3 ballPosition = transform.position + new Vector3(0,.5f,0);
+        Quaternion ballRotation = Quaternion.identity;
+        attachedBall = (GameObject)Instantiate(ballPrefab,ballPosition,ballRotation);
+    }
+
+    float paddleSpeed = 10f;
     // Update is called once per frame
     void Update() {
-        if (Input.GetAxis("Horizontal") < 0)
-        { 
-            Debug.Log("Left");
-           transform.Translate(-8f*Time.deltaTime, 0, 0);
-        }
-
-        if (Input.GetAxis("Horizontal") > 0)
+        transform.Translate(paddleSpeed*Time.deltaTime*Input.GetAxis("Horizontal"),0,0);
+        
+        if (attachedBall)
         {
-            Debug.Log("Right");
-            transform.Translate(8f * Time.deltaTime, 0, 0);
+            Rigidbody ballRigidboy = attachedBall.GetComponent<Rigidbody>();
+            ballRigidboy.position = transform.position + new Vector3(0, .5f, 0);
+            if (Input.GetButtonDown("Jump"))
+            {
+
+                ballRigidboy.isKinematic = false;
+                ballRigidboy.AddForce(300f * Input.GetAxis("Horizontal"), 300f, 0);
+                attachedBall = null;
+            }
         }
     }
 
